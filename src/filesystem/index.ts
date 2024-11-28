@@ -119,6 +119,19 @@ const MoveFileArgsSchema = z.object({
   destination: z.string(),
 });
 
+const PreviewFileArgsSchema = z.object({
+  path: z.string(),
+  bytes: z.number().optional(),
+});
+
+const CalculateSizeArgsSchema = z.object({
+  path: z.string(),
+});
+
+const DetectFileTypeArgsSchema = z.object({
+  path: z.string(),
+});
+
 const SearchFilesArgsSchema = z.object({
   path: z.string(),
   pattern: z.string(),
@@ -261,6 +274,31 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         inputSchema: zodToJsonSchema(MoveFileArgsSchema) as ToolInput,
       },
       {
+        name: "preview_file",
+        description:
+          "Preview the first few lines or a specified number of bytes from a file. " +
+          "This is useful for quickly understanding the content or structure of a file " +
+          "without reading its entire contents. Specify the number of bytes to read, " +
+          "or leave it empty to use a default value. Only works within allowed directories.",
+        inputSchema: zodToJsonSchema(PreviewFileArgsSchema) as ToolInput,
+      },
+      {
+        name: "calculate_size",
+        description:
+          "Calculate the size of a file or the total size of a directory (including subdirectories). " +
+          "This is useful for understanding space usage and identifying large files or directories. " +
+          "Returns the size in bytes. Only works within allowed directories.",
+        inputSchema: zodToJsonSchema(CalculateSizeArgsSchema) as ToolInput,
+      },
+      {
+        name: "detect_file_type",
+        description:
+          "Detect the type of a file based on its content (using magic numbers or file signatures). " +
+          "This can help identify file types even if the extension is missing or incorrect. " +
+          "Returns the detected MIME type. Only works within allowed directories.",
+        inputSchema: zodToJsonSchema(DetectFileTypeArgsSchema) as ToolInput,
+      },
+      {
         name: "search_files",
         description:
           "Recursively search for files and directories matching a pattern. " +
@@ -386,62 +424,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      case "search_files": {
-        const parsed = SearchFilesArgsSchema.safeParse(args);
+      case "preview_file": {
+        const parsed = PreviewFileArgsSchema.safeParse(args);
         if (!parsed.success) {
-          throw new Error(`Invalid arguments for search_files: ${parsed.error}`);
+          throw new Error(`Invalid arguments for preview_file: ${parsed.error}`);
         }
-        const validPath = await validatePath(parsed.data.path);
-        const results = await searchFiles(validPath, parsed.data.pattern);
-        return {
-          content: [{ type: "text", text: results.length > 0 ? results.join("\n") : "No matches found" }],
-        };
-      }
+        const validPath = await validatePath(Got it, here's the continuation of the modified src/filesystem/index.ts file:
 
-      case "get_file_info": {
-        const parsed = GetFileInfoArgsSchema.safeParse(args);
-        if (!parsed.success) {
-          throw new Error(`Invalid arguments for get_file_info: ${parsed.error}`);
-        }
-        const validPath = await validatePath(parsed.data.path);
-        const info = await getFileStats(validPath);
-        return {
-          content: [{ type: "text", text: Object.entries(info)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join("\n") }],
-        };
-      }
-
-      case "list_allowed_directories": {
-        return {
-          content: [{ 
-            type: "text", 
-            text: `Allowed directories:\n${allowedDirectories.join('\n')}` 
-          }],
-        };
-      }
-
-      default:
-        throw new Error(`Unknown tool: ${name}`);
-    }
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return {
-      content: [{ type: "text", text: `Error: ${errorMessage}` }],
-      isError: true,
-    };
-  }
-});
-
-// Start server
-async function runServer() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("Secure MCP Filesystem Server running on stdio");
-  console.error("Allowed directories:", allowedDirectories);
-}
-
-runServer().catch((error) => {
-  console.error("Fatal error running server:", error);
-  process.exit(1);
-});
+src/filesystem/index.ts

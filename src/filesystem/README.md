@@ -4,11 +4,6 @@ Node.js server implementing Model Context Protocol (MCP) for filesystem operatio
 
 ## Features
 
-- Read/write files
-- Create/list/delete directories
-- Move files/directories
-- Search files
-- Get file metadata
 
 **Note**: The server will only allow operations within directories specified via `args`.
 
@@ -16,44 +11,36 @@ Node.js server implementing Model Context Protocol (MCP) for filesystem operatio
 
 ### Resources
 
-- `file://system`: File system operations interface
 
 ### Tools
 
-- **read_file**
   - Read complete contents of a file
   - Input: `path` (string)
   - Reads complete file contents with UTF-8 encoding
 
-- **read_multiple_files**
   - Read multiple files simultaneously
   - Input: `paths` (string[])
   - Failed reads won't stop the entire operation
 
-- **write_file**
   - Create new file or overwrite existing (exercise caution with this)
   - Inputs:
     - `path` (string): File location
     - `content` (string): File content
 
-- **create_directory**
   - Create new directory or ensure it exists
   - Input: `path` (string)
   - Creates parent directories if needed
   - Succeeds silently if directory exists
 
-- **list_directory**
   - List directory contents with [FILE] or [DIR] prefixes
   - Input: `path` (string)
 
-- **move_file**
   - Move or rename files and directories
   - Inputs:
     - `source` (string)
     - `destination` (string)
   - Fails if destination exists
 
-- **search_files**
   - Recursively search for files/directories
   - Inputs:
     - `path` (string): Starting directory
@@ -61,7 +48,6 @@ Node.js server implementing Model Context Protocol (MCP) for filesystem operatio
   - Case-insensitive matching
   - Returns full paths to matches
 
-- **get_file_info**
   - Get detailed file/directory metadata
   - Input: `path` (string)
   - Returns:
@@ -72,7 +58,20 @@ Node.js server implementing Model Context Protocol (MCP) for filesystem operatio
     - Type (file/directory)
     - Permissions
 
-- **list_allowed_directories**
+  - Preview the first few lines or bytes of a file
+  - Inputs:
+    - `path` (string): File location
+    - `bytes` (number, optional): Number of bytes to preview
+  - Returns: Specified number of bytes or lines from the file
+
+  - Calculate size of a file or directory
+  - Input: `path` (string)
+  - Returns: Total size in bytes
+
+  - Detect file type based on content
+  - Input: `path` (string)
+  - Returns: Detected MIME type
+
   - List all directories the server is allowed to access
   - No input required
   - Returns:
@@ -80,22 +79,3 @@ Node.js server implementing Model Context Protocol (MCP) for filesystem operatio
 
 ## Usage with Claude Desktop
 Add this to your `claude_desktop_config.json`:
-```json
-{
-  "mcpServers": {
-    "filesystem": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/Users/username/Desktop",
-        "/path/to/other/allowed/dir"
-      ]
-    }
-  }
-}
-```
-
-## License
-
-This MCP server is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository.
